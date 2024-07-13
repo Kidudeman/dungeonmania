@@ -6,7 +6,7 @@ import dungeonmania.util.Position;
 
 import java.util.UUID;
 
-public abstract class Entity {
+public abstract class Entity implements EntityInterface {
     public static final int FLOOR_LAYER = 0;
     public static final int ITEM_LAYER = 1;
     public static final int DOOR_LAYER = 2;
@@ -45,13 +45,6 @@ public abstract class Entity {
     public void translate(Position offset) {
         this.position = Position.translateBy(this.position, offset);
     }
-
-
-    public abstract void onOverlap(GameMap map, Entity entity);
-
-    public abstract void onMovedAway(GameMap map, Entity entity);
-
-    public abstract void onDestroy(GameMap gameMap);
 
     public Position getPosition() {
         return position;

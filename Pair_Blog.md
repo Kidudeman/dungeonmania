@@ -30,9 +30,17 @@
 
 > i. Name the code smell present in the above code. Identify all subclasses of Entity which have similar code smells that point towards the same root cause.
 
+The code smell present is that code above violates the Liskov Substitution Principle. The presence of empty implementations for the onOverlap, onMovedAway, and onDestroy methods in subclasses like Exit indicates  that these methods are not universally applicable to all Entity subclasses. Every class that inherits entity has empty implementations of onOverlap, onMovedAway, and onDestroy, meaning that they have the same code smell. 
+
+
 [Answer]
 
 > ii. Redesign the inheritance structure to solve the problem, in doing so remove the smells.
+
+We redesign the inheritance structure by adding new interfaces: Destructible, MoveAwayable, and Overlappable. We add the function onMovedAway into MoveAwayable, onOverlap into Overlappable, and onDestroy into Destructible. We remove the onMovedAway, onOverlap and onDestroy in the Entity class and for each subclass of Entity, we have them implement these interfaces, depending on the properties of these entities. Since onOverlap and onMovedAway are called in GameMap, removing onMovedAway, onOverlap in the Entity class
+will cause errors. Thus, we would have to create a new getEntities method that gets either an Entity of type MoveAwayable or Overlappable. To do this we create a new interface: EntityInterface, and have Destructible, MoveAwayable and Overlappable inherit EntityInterface, and with Entity implementing EntityInterface. We put the two functions canMoveOnto and getPosition into EntityInterface as we need them to create the getEntities method. We create a new getEntities method that gets all the entities at a certain position and of a certain type: MoveAwayable or Overlappable. Thus, these changes allow for us to remove onMovedAway, onOverlap and onDestroy from the Entity class so that there is no violation of the Liskov Substitution principle.
+
+
 
 [Briefly explain what you did]
 
@@ -54,9 +62,15 @@
 
 > i. Do you think the design is of good quality here? Do you think it complies with the open-closed principle? Do you think the design should be changed?
 
+In the current design, adding new types of goals requires modifying the Goal class to add new case branches in the switch statement. This approach does not comply with the open-closed principle, as each new goal type requires modifying the existing Goal class. Instead, new goal types should be added by extending the behavior without altering the Goal class.
+
+
+
 [Answer]
 
 > ii. If you think the design is sufficient as it is, justify your decision. If you think the answer is no, pick a suitable Design Pattern that would improve the quality of the code and refactor the code accordingly.
+
+To fix the design, we will use the Composite Pattern. Firstly, we create a common interface that each of the specific goal strategies  (ExitGoal, BoulderGoal, TreasureGoal) implement in their respective classes.  These classes are the leaf components in the Composite Pattern, representing individual goals that do not contain other goals. We create a CompositeGoal abstract class, which holds goal1 and goal2 as private final variables, providing getters and a constructor. Next, we create two new classes representing composite objects: OrGoal and AndGoal, which inherit from CompositeGoal. This design allows for flexible and scalable goal combinations without modifying existing code, adhering to the Open-Closed Principle. 
 
 [Briefly explain what you did]
 
