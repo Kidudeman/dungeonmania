@@ -8,7 +8,11 @@ import java.util.PriorityQueue;
 import java.util.stream.Collectors;
 
 import dungeonmania.Game;
+import dungeonmania.entities.Destructible;
 import dungeonmania.entities.Entity;
+import dungeonmania.entities.EntityInterface;
+import dungeonmania.entities.MoveAwayable;
+import dungeonmania.entities.Overlappable;
 import dungeonmania.entities.Player;
 import dungeonmania.entities.Portal;
 import dungeonmania.entities.Switch;
@@ -104,7 +108,7 @@ public class GameMap {
 
     private void triggerMovingAwayEvent(Entity entity) {
         List<Runnable> callbacks = new ArrayList<>();
-        getEntities(entity.getPosition()).forEach(e -> {
+        getEntities(entity.getPosition(), MoveAwayable.class).forEach(e -> {
             if (e != entity)
                 callbacks.add(() -> e.onMovedAway(this, entity));
         });
@@ -115,7 +119,7 @@ public class GameMap {
 
     private void triggerOverlapEvent(Entity entity) {
         List<Runnable> overlapCallbacks = new ArrayList<>();
-        getEntities(entity.getPosition()).forEach(e -> {
+        getEntities(entity.getPosition(), Overlappable.class).forEach(e -> {
             if (e != entity)
                 overlapCallbacks.add(() -> e.onOverlap(this, entity));
         });
@@ -197,7 +201,9 @@ public class GameMap {
 
     public void destroyEntity(Entity entity) {
         removeNode(entity);
-        entity.onDestroy(this);
+
+        if (entity instanceof Destructible)
+            ((Destructible) entity).onDestroy(this);
     }
 
     public void addEntity(Entity entity) {
@@ -242,6 +248,10 @@ public class GameMap {
 
     public <T extends Entity> List<T> getEntities(Class<T> type) {
         return getEntities().stream().filter(type::isInstance).map(type::cast).collect(Collectors.toList());
+    }
+
+    public <T extends EntityInterface> List<T> getEntities(Position p, Class<T> type) {
+        return getEntities(p).stream().filter(type::isInstance).map(type::cast).collect(Collectors.toList());
     }
 
     public Player getPlayer() {
