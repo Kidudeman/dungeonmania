@@ -30,18 +30,22 @@ public abstract class Enemy extends Entity implements Battleable, Overlappable, 
     }
 
     @Override
-    public void onOverlap(GameMap map, Entity entity) {
+    public void onOverlap(Game game, Entity entity) {
         if (entity instanceof Player) {
             Player player = (Player) entity;
-            map.getGame().battle(player, this);
+            game.battle(player, this);
         }
     }
 
     @Override
-    public void onDestroy(GameMap map) {
-        Game g = map.getGame();
-        g.unsubscribe(getId());
+    public void onDestroy(Game game) {
+        game.unsubscribe(getId());
     }
 
-    public abstract void move(Game game);
+    public void move(Game game) {
+        Position nexPosition = calculateNextPosition(game);
+        game.moveTo(this, nexPosition);
+    }
+
+    public abstract Position calculateNextPosition(Game game);
 }

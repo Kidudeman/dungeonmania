@@ -32,11 +32,11 @@ public class Sword extends Entity implements InventoryItem, BattleItem, Overlapp
     }
 
     @Override
-    public void onOverlap(GameMap map, Entity entity) {
+    public void onOverlap(Game game, Entity entity) {
         if (entity instanceof Player) {
             if (!((Player) entity).pickUp(this))
                 return;
-            map.destroyEntity(this);
+            game.destroyEntity(this);
         }
     }
 
@@ -44,7 +44,7 @@ public class Sword extends Entity implements InventoryItem, BattleItem, Overlapp
     public void use(Game game) {
         durability--;
         if (durability <= 0) {
-            game.getPlayer().remove(this);
+            game.removeItemFromPlayer(this);
         }
     }
 

@@ -17,13 +17,12 @@ import dungeonmania.util.NameConverter;
 public class ResponseBuilder {
     public static DungeonResponse getDungeonResponse(Game game) {
         List<EntityResponse> entityResponse = new ArrayList<>();
-        game.getMap().getEntities().forEach(e -> {
+        game.getEntities().forEach(e -> {
             entityResponse.add(ResponseBuilder.getEntityResponse(game, e));
         });
         return new DungeonResponse(game.getId(), game.getName(), entityResponse,
-                (game.getPlayer() != null) ? getInventoryResponse(game.getPlayer().getInventory()) : null,
-                game.getBattleFacade().getBattleResponses(),
-                (game.getPlayer() != null) ? game.getPlayer().getBuildables() : null,
+                game.isPlayerDefined() ? getInventoryResponse(game.getPlayerInventory()) : null,
+                game.getBattleFacade().getBattleResponses(), game.isPlayerDefined() ? game.getPlayerBuildables() : null,
                 (game.getGoals().achieved(game)) ? "" : game.getGoals().toString(game));
     }
 

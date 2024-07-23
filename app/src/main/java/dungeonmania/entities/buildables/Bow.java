@@ -15,7 +15,7 @@ public class Bow extends Buildable {
     public void use(Game game) {
         durability--;
         if (durability <= 0) {
-            game.getPlayer().remove(this);
+            game.removeItemFromPlayer(this);
         }
     }
 

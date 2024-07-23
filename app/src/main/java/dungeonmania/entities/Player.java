@@ -4,9 +4,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import dungeonmania.Game;
 import dungeonmania.battles.BattleStatistics;
 import dungeonmania.battles.Battleable;
 import dungeonmania.entities.collectables.Bomb;
+import dungeonmania.entities.collectables.Key;
 import dungeonmania.entities.collectables.Treasure;
 import dungeonmania.entities.collectables.potions.InvincibilityPotion;
 import dungeonmania.entities.collectables.potions.Potion;
@@ -14,13 +16,15 @@ import dungeonmania.entities.enemies.Enemy;
 import dungeonmania.entities.enemies.Mercenary;
 import dungeonmania.entities.inventory.Inventory;
 import dungeonmania.entities.inventory.InventoryItem;
-import dungeonmania.entities.playerState.BaseState;
-import dungeonmania.entities.playerState.PlayerState;
 import dungeonmania.map.GameMap;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
 public class Player extends Entity implements Battleable, Overlappable {
+    enum PlayerState {
+        BaseState, InvincibleState, InvisibleState,
+    };
+
     public static final double DEFAULT_ATTACK = 5.0;
     public static final double DEFAULT_HEALTH = 5.0;
     private BattleStatistics battleStatistics;
@@ -38,7 +42,7 @@ public class Player extends Entity implements Battleable, Overlappable {
         battleStatistics = new BattleStatistics(health, attack, 0, BattleStatistics.DEFAULT_DAMAGE_MAGNIFIER,
                 BattleStatistics.DEFAULT_PLAYER_DAMAGE_REDUCER);
         inventory = new Inventory();
-        state = new BaseState(this);
+        state = PlayerState.BaseState;
     }
 
     public int getCollectedTreasureCount() {
@@ -51,6 +55,10 @@ public class Player extends Entity implements Battleable, Overlappable {
 
     public BattleItem getWeapon() {
         return inventory.getWeapon();
+    }
+
+    public void useWeapon(Game game) {
+        this.getWeapon().use(game);
     }
 
     public List<String> getBuildables() {
@@ -70,13 +78,13 @@ public class Player extends Entity implements Battleable, Overlappable {
     }
 
     @Override
-    public void onOverlap(GameMap map, Entity entity) {
+    public void onOverlap(Game game, Entity entity) {
         if (entity instanceof Enemy) {
             if (entity instanceof Mercenary) {
                 if (((Mercenary) entity).isAllied())
                     return;
             }
-            map.getGame().battle(this, (Enemy) entity);
+            game.battle(this, (Enemy) entity);
         }
     }
 
@@ -89,6 +97,18 @@ public class Player extends Entity implements Battleable, Overlappable {
         return inventory.getEntity(itemUsedId);
     }
 
+    public void removeInventoryItem(InventoryItem entity) {
+        this.inventory.remove(entity);
+    }
+
+    public List<Entity> getInventoryItems() {
+        return this.inventory.getEntities();
+    }
+
+    public <T> List<T> getInventoryItems(Class<T> clz) {
+        return this.inventory.getEntities(clz);
+    }
+
     public boolean pickUp(Entity item) {
         if (item instanceof Treasure)
             collectedTreasureCount++;
@@ -96,8 +116,8 @@ public class Player extends Entity implements Battleable, Overlappable {
         return inventoryItem.add(inventoryItem, getInventory());
     }
 
-    public Inventory getInventory() {
-        return inventory;
+    public List<Key> getKeys() {
+        return this.inventory.getEntities(Key.class);
     }
 
     public Potion getEffectivePotion() {
@@ -118,15 +138,17 @@ public class Player extends Entity implements Battleable, Overlappable {
     public void triggerNext(int currentTick) {
         if (queue.isEmpty()) {
             inEffective = null;
-            state.transitionBase();
+            state = PlayerState.BaseState;
             return;
         }
+
         inEffective = queue.remove();
         if (inEffective instanceof InvincibilityPotion) {
-            state.transitionInvincible();
+            state = PlayerState.InvincibleState;
         } else {
-            state.transitionInvisible();
+            state = PlayerState.InvisibleState;
         }
+
         nextTrigger = currentTick + inEffective.getDuration();
     }
 
@@ -162,11 +184,17 @@ public class Player extends Entity implements Battleable, Overlappable {
     }
 
     public BattleStatistics applyBuff(BattleStatistics origin) {
-        if (state.isInvincible()) {
+        switch (this.state) {
+        case InvincibleState:
             return BattleStatistics.applyBuff(origin, new BattleStatistics(0, 0, 0, 1, 1, true, true));
-        } else if (state.isInvisible()) {
+        case InvisibleState:
             return BattleStatistics.applyBuff(origin, new BattleStatistics(0, 0, 0, 1, 1, false, false));
+        default:
+            return origin;
         }
-        return origin;
+    }
+
+    public Inventory getInventory() {
+        return this.inventory;
     }
 }

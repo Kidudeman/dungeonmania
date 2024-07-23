@@ -101,7 +101,7 @@ public class GameMap {
             return;
         triggerMovingAwayEvent(entity);
         removeNode(entity);
-        entity.translate(direction);
+        entity.setPosition(Position.translateBy(entity.getPosition(), direction));
         addEntity(entity);
         triggerOverlapEvent(entity);
     }
@@ -121,7 +121,7 @@ public class GameMap {
         List<Runnable> overlapCallbacks = new ArrayList<>();
         getEntities(entity.getPosition(), Overlappable.class).forEach(e -> {
             if (e != entity)
-                overlapCallbacks.add(() -> e.onOverlap(this, entity));
+                overlapCallbacks.add(() -> e.onOverlap(this.game, entity));
         });
         overlapCallbacks.forEach(callback -> {
             callback.run();
@@ -203,7 +203,7 @@ public class GameMap {
         removeNode(entity);
 
         if (entity instanceof Destructible)
-            ((Destructible) entity).onDestroy(this);
+            ((Destructible) entity).onDestroy(this.game);
     }
 
     public void addEntity(Entity entity) {
@@ -260,10 +260,6 @@ public class GameMap {
 
     public void setPlayer(Player player) {
         this.player = player;
-    }
-
-    public Game getGame() {
-        return game;
     }
 
     public void setGame(Game game) {
