@@ -1,7 +1,7 @@
 package dungeonmania.entities;
 
-import dungeonmania.map.GameMap;
+import dungeonmania.Game;
 
 public interface Overlappable extends EntityInterface {
-    void onOverlap(GameMap map, Entity entity);
+    void onOverlap(Game map, Entity entity);
 }

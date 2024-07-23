@@ -1,5 +1,6 @@
 package dungeonmania.entities.collectables;
 
+import dungeonmania.Game;
 import dungeonmania.entities.Entity;
 import dungeonmania.entities.Overlappable;
 import dungeonmania.entities.Player;
@@ -18,11 +19,11 @@ public class Arrow extends Entity implements InventoryItem, Overlappable {
     }
 
     @Override
-    public void onOverlap(GameMap map, Entity entity) {
+    public void onOverlap(Game game, Entity entity) {
         if (entity instanceof Player) {
             if (!((Player) entity).pickUp(this))
                 return;
-            map.destroyEntity(this);
+            game.destroyEntity(this);
         }
     }
 

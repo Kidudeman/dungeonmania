@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import dungeonmania.Game;
 import dungeonmania.entities.Entity;
 import dungeonmania.entities.Overlappable;
 import dungeonmania.entities.Player;
@@ -44,20 +45,21 @@ public class Bomb extends Entity implements InventoryItem, Overlappable {
     }
 
     @Override
-    public void onOverlap(GameMap map, Entity entity) {
+    public void onOverlap(Game game, Entity entity) {
         if (state != State.SPAWNED)
             return;
         if (entity instanceof Player) {
-            if (!((Player) entity).pickUp(this))
+            if (!((Player) entity).pickUp(this)) {
                 return;
+            }
             subs.stream().forEach(s -> s.unsubscribe(this));
-            map.destroyEntity(this);
+            game.destroyEntity(this);
         }
         this.state = State.INVENTORY;
     }
 
     public void onPutDown(GameMap map, Position p) {
-        translate(Position.calculatePositionBetween(getPosition(), p));
+        setPosition(p);
         map.addEntity(this);
         this.state = State.PLACED;
         List<Position> adjPosList = getPosition().getCardinallyAdjacentPositions();

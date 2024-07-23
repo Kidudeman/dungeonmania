@@ -25,7 +25,6 @@ public class BattleFacade {
         double initialEnemyHealth = enemy.getBattleStatistics().getHealth();
         String enemyString = NameConverter.toSnakeCase(enemy);
 
-
         // 1. apply buff provided by the game and player's inventory
         // getting buffing amount
         List<BattleItem> battleItems = new ArrayList<>();
@@ -35,8 +34,9 @@ public class BattleFacade {
         if (effectivePotion != null) {
             playerBuff = player.applyBuff(playerBuff);
         } else {
-            for (BattleItem item : player.getInventory().getEntities(BattleItem.class)) {
-                if (item instanceof Potion) continue;
+            for (BattleItem item : player.getInventoryItems(BattleItem.class)) {
+                if (item instanceof Potion)
+                    continue;
                 playerBuff = item.applyBuff(playerBuff);
                 battleItems.add(item);
             }
@@ -44,7 +44,8 @@ public class BattleFacade {
 
         List<Mercenary> mercs = game.getMap().getEntities(Mercenary.class);
         for (Mercenary merc : mercs) {
-            if (!merc.isAllied()) continue;
+            if (!merc.isAllied())
+                continue;
             playerBuff = BattleStatistics.applyBuff(playerBuff, merc.getBattleStatistics());
         }
 
@@ -68,17 +69,11 @@ public class BattleFacade {
         }
 
         // 5. Log the battle - solidate it to be a battle response
-        battleResponses.add(new BattleResponse(
-                enemyString,
-                rounds.stream()
-                    .map(ResponseBuilder::getRoundResponse)
-                    .collect(Collectors.toList()),
-                battleItems.stream()
-                        .map(Entity.class::cast)
-                        .map(ResponseBuilder::getItemResponse)
+        battleResponses.add(new BattleResponse(enemyString,
+                rounds.stream().map(ResponseBuilder::getRoundResponse).collect(Collectors.toList()),
+                battleItems.stream().map(Entity.class::cast).map(ResponseBuilder::getItemResponse)
                         .collect(Collectors.toList()),
-                initialPlayerHealth,
-                initialEnemyHealth));
+                initialPlayerHealth, initialEnemyHealth));
     }
 
     public List<BattleResponse> getBattleResponses() {

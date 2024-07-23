@@ -7,15 +7,19 @@ import java.util.UUID;
 import dungeonmania.battles.BattleFacade;
 import dungeonmania.entities.Entity;
 import dungeonmania.entities.EntityFactory;
+import dungeonmania.entities.EntityInterface;
 import dungeonmania.entities.Interactable;
 import dungeonmania.entities.Player;
 import dungeonmania.entities.collectables.Bomb;
 import dungeonmania.entities.collectables.potions.Potion;
 import dungeonmania.entities.enemies.Enemy;
+import dungeonmania.entities.inventory.Inventory;
+import dungeonmania.entities.inventory.InventoryItem;
 import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.goals.Goal;
 import dungeonmania.map.GameMap;
 import dungeonmania.util.Direction;
+import dungeonmania.util.Position;
 
 public class Game {
     private String id;
@@ -53,7 +57,7 @@ public class Game {
     }
 
     public Game tick(Direction movementDirection) {
-        registerOnce(() -> player.move(this.getMap(), movementDirection), PLAYER_MOVEMENT, "playerMoves");
+        registerOnce(() -> player.move(this.map, movementDirection), PLAYER_MOVEMENT, "playerMoves");
         tick();
         return this;
     }
@@ -176,10 +180,6 @@ public class Game {
         this.goals = goals;
     }
 
-    public GameMap getMap() {
-        return map;
-    }
-
     public void setMap(GameMap map) {
         this.map = map;
     }
@@ -196,11 +196,87 @@ public class Game {
         return player.getCollectedTreasureCount();
     }
 
-    public Player getPlayer() {
-        return player;
-    }
-
     public BattleFacade getBattleFacade() {
         return battleFacade;
+    }
+
+    // Player Methods
+
+    public void removeItemFromPlayer(InventoryItem item) {
+        this.player.remove(item);
+    }
+
+    public Position getPlayerPosition() {
+        return this.player.getPosition();
+    }
+
+    public Position getPlayersPreviousDistinctPosition() {
+        return this.player.getPreviousDistinctPosition();
+    }
+
+    public List<String> getPlayerBuildables() {
+        return this.player.getBuildables();
+    }
+
+    public Inventory getPlayerInventory() {
+        return this.player.getInventory();
+    }
+
+    public Potion getPlayerEffectivePotion() {
+        return this.player.getEffectivePotion();
+    }
+
+    public boolean isPlayerDefined() {
+        return this.player != null;
+    }
+
+    public Player getPlayer() {
+        return this.player;
+    }
+
+    // GameMap methods
+
+    public GameMap getMap() {
+        return this.map;
+    }
+
+    public List<Entity> getEntities() {
+        return this.map.getEntities();
+    }
+
+    public <T extends Entity> List<T> getEntities(Class<T> type) {
+        return this.map.getEntities(type);
+    }
+
+    public <T extends EntityInterface> List<T> getEntities(Position postion, Class<T> type) {
+        return this.map.getEntities(postion, type);
+    }
+
+    public List<Entity> getEntities(Position position) {
+        return this.map.getEntities(position);
+    }
+
+    public void addEntity(Entity entity) {
+        this.map.addEntity(entity);
+    }
+
+    public void destroyEntity(Entity entity) {
+        this.map.destroyEntity(entity);
+    }
+
+    public void moveTo(Entity entity, Position position) {
+        this.map.moveTo(entity, position);
+    }
+
+    public void moveTo(Entity entity, Direction direction) {
+        this.map.moveTo(entity, direction);
+    }
+
+    public boolean canMoveTo(Entity entity, Position position) {
+        return this.map.canMoveTo(entity, position);
+    }
+
+    public Position dijkstraPathFind(Position src, Position dest, Entity entity) {
+        return this.map.dijkstraPathFind(src, dest, entity);
     }
 }

@@ -8,11 +8,19 @@
 
 > i. Look inside src/main/java/dungeonmania/entities/enemies. Where can you notice an instance of repeated code? Note down the particular offending lines/methods/fields.
 
-[Answer]
+The `ZombieToast` (line 27 - line 53) and `Mercenary` (line 103 - line 129) classes implement identical movement patterns for when the player has consumed an `InvincibilityPotiion`.
 
-> ii. What Design Pattern could be used to improve the quality of the code and avoid repetition? Justify your choice by relating the scenario to the key characteristics of your chosen Design Pattern.
+The `ZombieToast`'s standard movement pattern (line 55 - line 61) is identical to the `Mercenary`'s movement pattern when the player has consumed an `InvisibilityPotion` (line 93 - 101) (the discrepancy in line count is due to superfluous `map.moveTo` calls in the `Mercenary` class)
 
-[Answer]
+There is frequent and unneeded repetition of the `map.moveTo` method or `game.getMap().moveTo` method throughout the Entities in the enemies package, especially given all enemies move on every tick.
+
+> ii. What Design Pattern could be used to improve the quality of the code and avoid repetition? Justify your choice by relating the scenario to the key characteristics of your chosen Design Pattern.i
+
+The two design patterns that could most improve the quality of code is the Template Pattern and Strategy Patterns.
+
+To address the first instance of code duplication, we should implement movement strategy patterns for each of the enemy types which define their movement algorithm - we could implement a strategy pattern for when the player has an `InvicibilityPotion` that can be shared between the Mercenary and ZombieToast entities and create a strategy pattern for randomised movement that can be shared between the `ZombieToast`'s standard movement pattern and the `Mercenary`'s movement pattern when the player has consumed an `InvisibilityPotion`.
+
+The second instance of code duplication can be resolved straigtforwardly by calculating the value of next position using the strategy pattern and then only calling the `map.moveTo` method when that computation has been finalised but, this refactoring can be taken further; Given all moving entities will 'move' every tick (every iteration of the game loop) a Template pattern where the next position is calculated by subclassed entity and then the movement is actualised in the super class would create more concise movement code. 
 
 > iii. Using your chosen Design Pattern, refactor the code to remove the repetition.
 

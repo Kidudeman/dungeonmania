@@ -1,7 +1,7 @@
 package dungeonmania.entities;
 
-import dungeonmania.map.GameMap;
+import dungeonmania.Game;
 
 public interface Destructible extends EntityInterface {
-    void onDestroy(GameMap gameMap);
+    void onDestroy(Game gameMap);
 }

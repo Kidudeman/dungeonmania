@@ -3,6 +3,7 @@ package dungeonmania.entities;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import dungeonmania.Game;
 import dungeonmania.entities.enemies.Mercenary;
 import dungeonmania.entities.enemies.ZombieToast;
 import dungeonmania.map.GameMap;
@@ -32,18 +33,18 @@ public class Portal extends Entity implements Overlappable {
     }
 
     @Override
-    public void onOverlap(GameMap map, Entity entity) {
+    public void onOverlap(Game map, Entity entity) {
         if (pair == null)
             return;
         if (entity instanceof Player || entity instanceof Mercenary || entity instanceof ZombieToast)
             doTeleport(map, entity);
     }
 
-    private void doTeleport(GameMap map, Entity entity) {
+    private void doTeleport(Game game, Entity entity) {
         Position destination = pair.getPosition().getCardinallyAdjacentPositions().stream()
-                .filter(dest -> map.canMoveTo(entity, dest)).findAny().orElse(null);
+                .filter(dest -> game.canMoveTo(entity, dest)).findAny().orElse(null);
         if (destination != null) {
-            map.moveTo(entity, destination);
+            game.moveTo(entity, destination);
         }
     }
 
