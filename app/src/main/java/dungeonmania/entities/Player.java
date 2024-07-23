@@ -92,7 +92,8 @@ public class Player extends Entity implements Battleable, Overlappable {
     public boolean pickUp(Entity item) {
         if (item instanceof Treasure)
             collectedTreasureCount++;
-        return inventory.add((InventoryItem) item);
+        InventoryItem inventoryItem = (InventoryItem) item;
+        return inventoryItem.add(inventoryItem, getInventory());
     }
 
     public Inventory getInventory() {

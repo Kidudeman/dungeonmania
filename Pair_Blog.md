@@ -22,7 +22,7 @@
 
 > Identify one place where the Observer Pattern is present in the codebase, and outline how the implementation relates to the key characteristics of the Observer Pattern.
 
-[Answer]
+There is an observer pattern within the Game class. Game acts as a the subject and maintains a list of ComparableCallbacks. These callbacks are the observers. Within the Game class are the register (or registerOnce), unsubscribe and tick methods; register adds observers to the list, unsubsribe can remove them and tick notifies the callbacks if any changes are made by calling their run method. Run method in ComparableCallback acts as the update method and executes the Runnable tasks if they are valid. 
 
 ### c) Inheritance Design
 
@@ -50,11 +50,11 @@ will cause errors. Thus, we would have to create a new getEntities method that g
 
 > i. What design smell is present in the above description?
 
-[Answer]
+The code smell present is Shotgun Surgery as to make a change on how entities are collected, many different changes must be made for the code to continue to function. This is a violation of the single responsibility principle that dictates a class should only have a single responsibility. This indicates high coupling and rigidity/fragility that makes making any changes to the codebase extremely difficult.
 
 > ii. Refactor the code to resolve the smell and underlying problem causing it.
 
-[Briefly explain what you did]
+I used the interface InventoryItem that was provided and added a default method add which is given the item to be added and the players inventory that returns a boolean value based on if the item is successfully added. All inventory items implement this method and therefore adopt the add function without it having to be in the class itself. 
 
 ### e) Open-Closed Goals
 
