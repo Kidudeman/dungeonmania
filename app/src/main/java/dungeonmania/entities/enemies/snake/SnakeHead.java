@@ -67,7 +67,7 @@ public class SnakeHead extends Enemy implements SnakeNode {
 
     @Override
     public void onDestroy(Game game) {
-        destroyRightNodes(game);
+        destroyAllNodes(game);
 
     }
 
@@ -118,14 +118,6 @@ public class SnakeHead extends Enemy implements SnakeNode {
         return healthKeyBuff;
     }
 
-    public int getSize() {
-        int size = 0;
-        for (SnakeNode curr = this; curr != null; curr = curr.getRight()) {
-            size++;
-        }
-        return size;
-    }
-
     @Override
     public List<Position> getPrevPos() {
         return prevPos;
@@ -147,22 +139,6 @@ public class SnakeHead extends Enemy implements SnakeNode {
             curr.setIndex(i);
             curr.setHead(this);
         }
-    }
-
-    @Override
-    public List<Position> updatePrevPos() {
-        List<Position> newPrevPos = new ArrayList<>(getPrevPos());
-
-        if (hasMoved()) {
-            newPrevPos.subList(newPrevPos.size() - right.getIndex() - 1, newPrevPos.size()).clear();
-        } else {
-            newPrevPos.subList(newPrevPos.size() - right.getIndex(), newPrevPos.size()).clear();
-        }
-        return newPrevPos;
-    }
-
-    public boolean hasMoved() {
-        return !Position.isAdjacent(getPos(), right.getPos());
     }
 
     @Override
