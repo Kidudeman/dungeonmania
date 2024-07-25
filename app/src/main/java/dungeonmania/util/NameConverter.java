@@ -6,6 +6,8 @@ import java.util.Iterator;
 import dungeonmania.entities.Door;
 import dungeonmania.entities.Entity;
 import dungeonmania.entities.Portal;
+import dungeonmania.entities.logical.LightBulb;
+import dungeonmania.entities.logical.SwitchDoor;
 
 public class NameConverter {
     public static String toSnakeCase(Entity entity) {
@@ -17,6 +19,12 @@ public class NameConverter {
         if (entity instanceof Door) {
             String open = ((Door) entity).isOpen() ? "_open" : "";
             return nameBasic + open;
+        }
+        if (entity instanceof SwitchDoor) {
+            return nameBasic + (((SwitchDoor) entity).isOpen() ? "_open" : "");
+        }
+        if (entity instanceof LightBulb) {
+            return nameBasic + (((LightBulb) entity).isOn() ? "_on" : "_off");
         }
         return nameBasic;
     }

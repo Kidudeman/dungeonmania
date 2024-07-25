@@ -5,12 +5,21 @@ import dungeonmania.entities.buildables.Bow;
 import dungeonmania.entities.buildables.Shield;
 import dungeonmania.entities.collectables.*;
 import dungeonmania.entities.enemies.*;
+import dungeonmania.entities.logical.LightBulb;
+import dungeonmania.entities.logical.Logical;
+import dungeonmania.entities.logical.SwitchDoor;
+import dungeonmania.entities.logical.activationStrategies.ActivationStrategy;
+import dungeonmania.entities.logical.activationStrategies.AndActivationStrategy;
+import dungeonmania.entities.logical.activationStrategies.CoAndActivationStrategy;
+import dungeonmania.entities.logical.activationStrategies.OrActivationStrategy;
+import dungeonmania.entities.logical.activationStrategies.XorActivationStrategy;
 import dungeonmania.entities.enemies.snake.SnakeBody;
 import dungeonmania.entities.enemies.snake.SnakeHead;
 import dungeonmania.entities.enemies.snake.SnakeNode;
 import dungeonmania.entities.enemies.snake.SnakeState;
 import dungeonmania.entities.collectables.potions.InvincibilityPotion;
 import dungeonmania.entities.collectables.potions.InvisibilityPotion;
+import dungeonmania.entities.conductors.Wire;
 import dungeonmania.util.Position;
 
 import java.util.ArrayList;
@@ -181,6 +190,21 @@ public class EntityFactory {
         return new Shield(shieldDurability, shieldDefence);
     }
 
+    public ActivationStrategy determineActivationStrategy(Logical logicalEntity, String logic) {
+        switch (logic) {
+        case "and":
+            return new AndActivationStrategy(logicalEntity);
+        case "or":
+            return new OrActivationStrategy(logicalEntity);
+        case "xor":
+            return new XorActivationStrategy(logicalEntity);
+        case "co_and":
+            return new CoAndActivationStrategy(logicalEntity);
+        default:
+            return null;
+        }
+    }
+
     private Entity constructEntity(JSONObject jsonEntity, JSONObject config) {
         Position pos = new Position(jsonEntity.getInt("x"), jsonEntity.getInt("y"));
 
@@ -209,7 +233,9 @@ public class EntityFactory {
             return new Arrow(pos);
         case "bomb":
             int bombRadius = config.optInt("bomb_radius", Bomb.DEFAULT_RADIUS);
-            return new Bomb(pos, bombRadius);
+            Bomb bomb = new Bomb(pos, bombRadius);
+            bomb.setActivationStrategy(determineActivationStrategy(bomb, jsonEntity.optString("logic", "")));
+            return bomb;
         case "invisibility_potion":
             int invisibilityPotionDuration = config.optInt("invisibility_potion_duration",
                     InvisibilityPotion.DEFAULT_DURATION);
@@ -232,6 +258,16 @@ public class EntityFactory {
             return new Door(pos, jsonEntity.getInt("key"));
         case "key":
             return new Key(pos, jsonEntity.getInt("key"));
+        case "wire":
+            return new Wire(pos);
+        case "light_bulb_off":
+            LightBulb lightBulb = new LightBulb(pos);
+            lightBulb.setActivationStrategy(determineActivationStrategy(lightBulb, jsonEntity.getString("logic")));
+            return lightBulb;
+        case "switch_door":
+            SwitchDoor switchDoor = new SwitchDoor(pos);
+            switchDoor.setActivationStrategy(determineActivationStrategy(switchDoor, jsonEntity.getString("logic")));
+            return switchDoor;
         default:
             return null;
         }

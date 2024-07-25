@@ -5,10 +5,11 @@ import java.util.List;
 
 import dungeonmania.Game;
 import dungeonmania.entities.collectables.Bomb;
+import dungeonmania.entities.conductors.Conductor;
 import dungeonmania.map.GameMap;
 import dungeonmania.util.Position;
 
-public class Switch extends Entity implements Overlappable, MoveAwayable {
+public class Switch extends Conductor implements Overlappable, MoveAwayable {
     private boolean activated;
     private List<Bomb> bombs = new ArrayList<>();
 
@@ -51,8 +52,8 @@ public class Switch extends Entity implements Overlappable, MoveAwayable {
         }
     }
 
-    public boolean isActivated() {
+    @Override
+    public boolean isActivated(Game game) {
         return activated;
     }
-
 }

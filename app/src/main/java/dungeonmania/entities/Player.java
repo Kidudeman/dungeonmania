@@ -34,6 +34,7 @@ public class Player extends Entity implements Battleable, Overlappable {
     private int nextTrigger = 0;
 
     private int collectedTreasureCount = 0;
+    private int enemiesKilled = 0;
 
     private PlayerState state;
 
@@ -196,5 +197,13 @@ public class Player extends Entity implements Battleable, Overlappable {
 
     public Inventory getInventory() {
         return this.inventory;
+    }
+
+    public void incrementEnemiesKilled() {
+        this.enemiesKilled++;
+    }
+
+    public int getEnemiesKilled() {
+        return this.enemiesKilled;
     }
 }

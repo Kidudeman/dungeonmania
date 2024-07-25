@@ -35,6 +35,7 @@ public class Game {
     public static final int AI_MOVEMENT = 2;
     public static final int AI_MOVEMENT_CALLBACK = 3;
     public static final int ITEM_LONGEVITY_UPDATE = 4;
+    public static final int EVALUATE_LOGICAL_ENTITIES = 5;
 
     private ComparableCallback currentAction = null;
 
@@ -86,6 +87,7 @@ public class Game {
         }
         if (enemy.getBattleStatistics().getHealth() <= 0) {
             map.destroyEntity(enemy);
+            player.incrementEnemiesKilled();
         }
     }
 
@@ -228,6 +230,10 @@ public class Game {
 
     public boolean isPlayerDefined() {
         return this.player != null;
+    }
+
+    public int getEnemiesKilledByPlayer() {
+        return this.player.getEnemiesKilled();
     }
 
     public Player getPlayer() {
