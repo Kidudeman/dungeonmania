@@ -172,8 +172,7 @@ public class EntityFactory {
     public void buildSnakeBody(SnakeNode left, Game game) {
         double snakeHealth = config.optDouble("snake_health", SnakeNode.DEFAULT_HEALTH);
         double snakeAttack = config.optDouble("snake_attack", SnakeNode.DEFAULT_ATTACK);
-        SnakeBody end = new SnakeBody(left.getHead(), left.getState(), left, left.calculateLastPos(), snakeHealth,
-                snakeAttack);
+        SnakeBody end = new SnakeBody(left.getHead(), left, left.calculateLastPos(), snakeHealth, snakeAttack);
         game.getMap().addEntity(end);
         left.connectRight(end);
         game.register(() -> end.move(game), end.getMovementPriority(), end.getId());

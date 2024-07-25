@@ -14,15 +14,12 @@ public class SnakeBody extends Enemy implements SnakeNode {
     private SnakeNode right;
     private SnakeHead head;
     private SnakeNode left;
-    private SnakeState state;
     private int index;
 
-    public SnakeBody(SnakeHead head, SnakeState state, SnakeNode left, Position position, double health,
-            double attack) {
+    public SnakeBody(SnakeHead head, SnakeNode left, Position position, double health, double attack) {
         super(position, health, attack);
         right = null;
         this.left = left;
-        this.state = state;
         this.index = left.getIndex() + 1;
         this.head = head;
     }
@@ -37,9 +34,21 @@ public class SnakeBody extends Enemy implements SnakeNode {
         return entity instanceof Player;
     }
 
+    private SnakeHead splitSnake(Game game) {
+
+        SnakeNode right = getRight();
+        Position pos = right.getPos();
+
+        List<Position> newPrevPos = updatePrevPos();
+
+        SnakeHead newHead = game.getEntityFactory().buildSplitSnake(game, getHead(), right.getRight(), pos, newPrevPos);
+        right.destroySnakeNode(game);
+        return newHead;
+    }
+
     @Override
     public void onDestroy(Game game) {
-        if (state.isInvincible()) {
+        if (getState().isInvincible()) {
             if (right != null) {
                 SnakeHead newHead = splitSnake(game);
                 destroySnakeNode(game);
@@ -49,14 +58,27 @@ public class SnakeBody extends Enemy implements SnakeNode {
             }
 
         } else {
-            destroyRightNodes(game);
+            destroyAllNodes(game);
         }
 
     }
 
     @Override
+    public Position calculateLastPos() {
+        return getPrevPos().get(getPrevPos().size() - index - 1);
+    }
+
+    @Override
+    public Position calculateNextPosition(Game game) {
+        if (getState().isHibernating()) {
+            return getPosition();
+        }
+        return getPrevPos().get(getPrevPos().size() - index);
+    }
+
+    @Override
     public SnakeState getState() {
-        return state;
+        return head.getState();
     }
 
     @Override
@@ -76,19 +98,6 @@ public class SnakeBody extends Enemy implements SnakeNode {
     @Override
     public List<Position> getPrevPos() {
         return head.getPrevPos();
-    }
-
-    @Override
-    public Position calculateLastPos() {
-        return getPrevPos().get(getPrevPos().size() - index - 1);
-    }
-
-    @Override
-    public Position calculateNextPosition(Game game) {
-        if (state.isHibernating()) {
-            return getPosition();
-        }
-        return getPrevPos().get(getPrevPos().size() - index);
     }
 
     @Override
@@ -136,8 +145,7 @@ public class SnakeBody extends Enemy implements SnakeNode {
         this.head = head;
     }
 
-    @Override
-    public List<Position> updatePrevPos() {
+    private List<Position> updatePrevPos() {
         List<Position> newPrevPos = new ArrayList<>(getPrevPos());
 
         newPrevPos.subList(newPrevPos.size() - right.getIndex(), newPrevPos.size()).clear();

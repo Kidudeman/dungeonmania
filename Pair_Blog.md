@@ -116,7 +116,7 @@ Add all other changes you made in the same format here:
 
 ### Choice 1 (Snakes)
 
-[Links to your merge requests](/put/links/here)
+[Links to your merge requests](https://nw-syd-gitlab.cseunsw.tech/COMP2511/24T2/teams/W14A_JALAPENO/assignment-ii/-/merge_requests/6)
 
 **Assumptions**
 
@@ -127,6 +127,11 @@ Add all other changes you made in the same format here:
 - Players can fight invisible snakes
 - A snake can be invincible and invisible at the same time.
 - Snakes can teleport through portals, but one node at a time.
+- DEFAULT_KEY_BUFF = 2.0;
+- DEFAULT_TREASURE_BUFF = 1.0;
+- DEFAULT_ARROW_BUFF = 2.0;
+- DEFAULT_ATTACK = 1.0;
+- DEFAULT_HEALTH = 5.0;
 
 **Design**
 
@@ -144,7 +149,7 @@ To move the snake, we move the head first by assigning the head AI_MOVEMENT prio
 
 When a body node gets destroyed, this is handled in the onDestroy function. If the snake is invincible a new snake is created by destroying the right node of the destroyed node, creating a new SnakeHead and rerouting the indices and head references of the right nodes and creating a new state based on the current state of the snake. 
 
-The effects of the invisibility potion are handled in the canMoveOnto functions. Since the body nodes do not move in chronological order, we must allow collisions or overlapping between nodes of the same snake for only the snake movement phase. So we make it so that it can overlap with a node of the same snake only if that node is an adjacent node. 
+The buff of the invisibility potion are handled in the canMoveOnto functions. Since the body nodes do not move in chronological order, we must allow collisions or overlapping between nodes of the same snake for only the snake movement phase. So we make it so that it can overlap with a node of the same snake only if that node is an adjacent node. 
 
 
 **Changes after review**
