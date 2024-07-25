@@ -12,9 +12,10 @@ import dungeonmania.entities.Overlappable;
 import dungeonmania.entities.Player;
 import dungeonmania.entities.Switch;
 import dungeonmania.entities.inventory.InventoryItem;
+import dungeonmania.entities.logical.Logical;
 import dungeonmania.map.GameMap;
 
-public class Bomb extends Entity implements InventoryItem, Overlappable {
+public class Bomb extends Logical implements InventoryItem, Overlappable {
     public enum State {
         SPAWNED, INVENTORY, PLACED
     }
@@ -86,5 +87,12 @@ public class Bomb extends Entity implements InventoryItem, Overlappable {
 
     public State getState() {
         return state;
+    }
+
+    @Override
+    public void onActivated(Game game) {
+        if (this.runActivationStrategy(game)) {
+            this.explode(game.getMap());
+        }
     }
 }

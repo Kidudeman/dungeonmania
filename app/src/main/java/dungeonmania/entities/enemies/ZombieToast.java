@@ -22,5 +22,4 @@ public class ZombieToast extends Enemy {
 
         return new RandomMovementStrategy(this).getNextPosition(game);
     }
-
 }

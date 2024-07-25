@@ -19,6 +19,7 @@ import dungeonmania.entities.Switch;
 import dungeonmania.entities.collectables.Bomb;
 import dungeonmania.entities.enemies.Enemy;
 import dungeonmania.entities.enemies.ZombieToastSpawner;
+import dungeonmania.entities.logical.Logical;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
@@ -39,6 +40,7 @@ public class GameMap {
         initPairPortals();
         initRegisterMovables();
         initRegisterSpawners();
+        initRegisterAllLogicalEntities();
         initRegisterBombsAndSwitches();
     }
 
@@ -47,12 +49,19 @@ public class GameMap {
         List<Switch> switchs = getEntities(Switch.class);
         for (Bomb b : bombs) {
             for (Switch s : switchs) {
-                if (Position.isAdjacent(b.getPosition(), s.getPosition())) {
+                if (Position.isAdjacent(b.getPosition(), s.getPosition()) && !b.isActivationStrategySet()) {
                     b.subscribe(s);
                     s.subscribe(b);
                 }
             }
         }
+    }
+
+    private void initRegisterAllLogicalEntities() {
+        List<Logical> logicalEntities = getEntities(Logical.class);
+        logicalEntities.stream().filter(Logical::isActivationStrategySet).forEach(e -> {
+            game.register(() -> e.onActivated(game), Game.EVALUATE_LOGICAL_ENTITIES, e.getId());
+        });
     }
 
     // Pair up portals if there's any

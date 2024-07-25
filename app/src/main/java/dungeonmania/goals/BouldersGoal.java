@@ -7,7 +7,7 @@ import dungeonmania.entities.Switch;
 public class BouldersGoal implements Goal {
     @Override
     public boolean achieved(Game game) {
-        return game.getEntities(Switch.class).stream().allMatch(Switch::isActivated);
+        return game.getEntities(Switch.class).stream().allMatch(s -> s.isActivated(game));
     }
 
     @Override
