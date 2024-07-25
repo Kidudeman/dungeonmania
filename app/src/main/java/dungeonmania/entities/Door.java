@@ -7,6 +7,7 @@ import java.util.Optional;
 import dungeonmania.Game;
 import dungeonmania.entities.collectables.Key;
 import dungeonmania.entities.enemies.Spider;
+import dungeonmania.entities.enemies.snake.SnakeNode;
 import dungeonmania.util.Position;
 
 public class Door extends Entity implements Overlappable {
@@ -20,7 +21,7 @@ public class Door extends Entity implements Overlappable {
 
     @Override
     public boolean canMoveOnto(GameMap map, Entity entity) {
-        if (open || entity instanceof Spider) {
+        if (open || entity instanceof Spider || entity instanceof SnakeNode) {
             return true;
         }
         return (entity instanceof Player && hasKey((Player) entity).isPresent());

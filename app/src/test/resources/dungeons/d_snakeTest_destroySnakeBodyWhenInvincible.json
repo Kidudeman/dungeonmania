@@ -1,0 +1,47 @@
+{
+    "entities": [
+        {
+            "type": "player",
+            "x": 1,
+            "y": 1
+        },
+        {
+            "type": "exit",
+            "x": 15,
+            "y": 5
+        },
+        {
+            "type": "treasure",
+            "x": 3,
+            "y": 1
+        },
+        {
+            "type": "treasure",
+            "x": 4,
+            "y": 1
+        },
+        {
+            "type": "invincibility_potion",
+            "x": 5,
+            "y": 1
+        },
+        {
+            "type": "treasure",
+            "x": 2,
+            "y": 1
+        },
+        {
+            "type": "snake_head",
+            "x": 9,
+            "y": 1
+        },
+        {
+            "type": "treasure",
+            "x": 9,
+            "y": 9
+        }
+    ],
+    "goal-condition": {
+        "goal": "exit"
+    }
+}

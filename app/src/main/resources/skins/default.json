@@ -24,6 +24,8 @@
         "exit": "images/tileset/entities/stairs_down.png",
         "wall": "images/tileset/walls/wooden/wood_bottom.png",
         "mercenary": "images/tileset/entities/ranger.png",
+        "snake_head": "images/tileset/entities/snake_head.png",
+        "snake_body": "images/tileset/entities/snake_body.png",
         "switch": "images/tileset/floor_switch.png",
         "invincibility_potion": "images/tileset/items/potion_10.png",
         "invisibility_potion": "images/tileset/items/potion_9.png",

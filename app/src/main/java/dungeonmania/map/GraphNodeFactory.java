@@ -28,6 +28,8 @@ public class GraphNodeFactory {
         case "portal":
         case "sword":
         case "spider":
+        case "snake_head":
+        case "snake_body":
         case "door":
         case "key":
             return new GraphNode(factory.createEntity(jsonEntity));

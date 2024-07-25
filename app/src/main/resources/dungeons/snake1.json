@@ -1,0 +1,52 @@
+{
+    "entities": [
+        {
+            "type": "player",
+            "x": 2,
+            "y": 2
+        },
+        {
+            "type": "bomb",
+            "x": 3,
+            "y": 3
+        },
+        {
+            "type": "switch",
+            "x": 4,
+            "y": 2
+        },
+        {
+            "type": "boulder",
+            "x": 3,
+            "y": 2
+        },
+        {
+            "type": "exit",
+            "x": 8,
+            "y": 8
+        },
+        {
+            "type": "treasure",
+            "x": 7,
+            "y": 2
+        },
+        {
+            "type": "treasure",
+            "x": 8,
+            "y": 2
+        },
+        {
+            "type": "snake_head",
+            "x": 5,
+            "y": 2
+        },
+        {
+            "type": "treasure",
+            "x": 6,
+            "y": 2
+        }
+    ],
+    "goal-condition": {
+        "goal": "exit"
+    }
+}

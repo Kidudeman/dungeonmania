@@ -5,6 +5,8 @@ import dungeonmania.entities.Destructible;
 import dungeonmania.entities.Entity;
 import dungeonmania.entities.Interactable;
 import dungeonmania.entities.Player;
+import dungeonmania.entities.enemies.snake.SnakeNode;
+import dungeonmania.map.GameMap;
 import dungeonmania.util.Position;
 
 public class ZombieToastSpawner extends Entity implements Interactable, Destructible {
@@ -33,4 +35,8 @@ public class ZombieToastSpawner extends Entity implements Interactable, Destruct
         return Position.isAdjacent(player.getPosition(), getPosition()) && player.hasWeapon();
     }
 
+    @Override
+    public boolean canMoveOnto(GameMap map, Entity entity) {
+        return entity instanceof SnakeNode;
+    }
 }

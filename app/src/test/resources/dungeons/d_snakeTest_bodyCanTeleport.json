@@ -1,0 +1,54 @@
+{
+    "entities": [
+        {
+            "type": "player",
+            "x": 1,
+            "y": 3
+        },
+        {
+            "type": "snake_head",
+            "x": 1,
+            "y": 2
+        },
+        {
+            "type": "treasure",
+            "x": 2,
+            "y": 2
+        },
+        {
+            "type": "treasure",
+            "x": 3,
+            "y": 2
+        },
+        {
+            "type": "treasure",
+            "x": 4,
+            "y": 2
+        },
+        {
+            "type": "treasure",
+            "x": 3,
+            "y": 8
+        },
+        {
+            "type": "portal",
+            "x": 5,
+            "y": 2,
+            "colour": "BLUE"
+        },
+        {
+            "type": "portal",
+            "x": 2,
+            "y": 5,
+            "colour": "BLUE"
+        },
+        {
+            "type": "exit",
+            "x": 5,
+            "y": 5
+        }
+    ],
+    "goal-condition": {
+        "goal": "exit"
+    }
+}
