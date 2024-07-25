@@ -5,7 +5,12 @@
   "java.format.settings.url": ".vscode/java-formatter.xml",
   "java.format.comments.enabled": false,
   "java.import.gradle.version": "8.5",
+<<<<<<< HEAD
+"editor.formatOnSave": true,
+"java.compile.nullAnalysis.mode": "automatic"
+=======
   "editor.formatOnSave": true,
   "coverage-gutters.coverageFileNames": ["jacocoTestReport.xml"],
   "java.compile.nullAnalysis.mode": "automatic"
+>>>>>>> main
 }

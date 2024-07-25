@@ -1,0 +1,37 @@
+{
+    "entities": [
+        {
+            "type": "player",
+            "x": 1,
+            "y": 3
+        },
+        {
+            "type": "snake_head",
+            "x": 2,
+            "y": 3
+        },
+        {
+            "type": "snake_head",
+            "x": 3,
+            "y": 3
+        },
+        {
+            "type": "treasure",
+            "x": 3,
+            "y": 1
+        },
+        {
+            "type": "wall",
+            "x": 2,
+            "y": 2
+        },
+        {
+            "type": "exit",
+            "x": 5,
+            "y": 5
+        }
+    ],
+    "goal-condition": {
+        "goal": "exit"
+    }
+}

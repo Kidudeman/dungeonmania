@@ -7,6 +7,7 @@ import dungeonmania.entities.Destructible;
 import dungeonmania.entities.Entity;
 import dungeonmania.entities.Overlappable;
 import dungeonmania.entities.Player;
+import dungeonmania.entities.enemies.snake.SnakeNode;
 import dungeonmania.map.GameMap;
 import dungeonmania.util.Position;
 
@@ -21,7 +22,7 @@ public abstract class Enemy extends Entity implements Battleable, Overlappable, 
 
     @Override
     public boolean canMoveOnto(GameMap map, Entity entity) {
-        return entity instanceof Player;
+        return entity instanceof Player || entity instanceof SnakeNode;
     }
 
     @Override
@@ -40,6 +41,10 @@ public abstract class Enemy extends Entity implements Battleable, Overlappable, 
     @Override
     public void onDestroy(Game game) {
         game.unsubscribe(getId());
+    }
+
+    public int getMovementPriority() {
+        return Game.AI_MOVEMENT;
     }
 
     public void move(Game game) {

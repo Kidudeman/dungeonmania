@@ -34,14 +34,11 @@ There is an observer pattern within the Game class. Game acts as a the subject a
 
 ### c) Inheritance Design
 
-[Links to your merge requests](/put/links/here)
+[Links to your merge requests](https://nw-syd-gitlab.cseunsw.tech/COMP2511/24T2/teams/W14A_JALAPENO/assignment-ii/-/merge_requests/1)
 
 > i. Name the code smell present in the above code. Identify all subclasses of Entity which have similar code smells that point towards the same root cause.
 
 The code smell present is that code above violates the Liskov Substitution Principle. The presence of empty implementations for the onOverlap, onMovedAway, and onDestroy methods in subclasses like Exit indicates  that these methods are not universally applicable to all Entity subclasses. Every class that inherits entity has empty implementations of onOverlap, onMovedAway, and onDestroy, meaning that they have the same code smell. 
-
-
-[Answer]
 
 > ii. Redesign the inheritance structure to solve the problem, in doing so remove the smells.
 
@@ -66,19 +63,16 @@ I used the interface InventoryItem that was provided and added a default method 
 
 ### e) Open-Closed Goals
 
-[Links to your merge requests](/put/links/here)
+[Links to your merge requests](https://nw-syd-gitlab.cseunsw.tech/COMP2511/24T2/teams/W14A_JALAPENO/assignment-ii/-/merge_requests/1)
 
 > i. Do you think the design is of good quality here? Do you think it complies with the open-closed principle? Do you think the design should be changed?
 
 In the current design, adding new types of goals requires modifying the Goal class to add new case branches in the switch statement. This approach does not comply with the open-closed principle, as each new goal type requires modifying the existing Goal class. Instead, new goal types should be added by extending the behavior without altering the Goal class.
 
 
-
-[Answer]
-
 > ii. If you think the design is sufficient as it is, justify your decision. If you think the answer is no, pick a suitable Design Pattern that would improve the quality of the code and refactor the code accordingly.
 
-To fix the design, we will use the Composite Pattern. Firstly, we create a common interface that each of the specific goal strategies  (ExitGoal, BoulderGoal, TreasureGoal) implement in their respective classes.  These classes are the leaf components in the Composite Pattern, representing individual goals that do not contain other goals. We create a CompositeGoal abstract class, which holds goal1 and goal2 as private final variables, providing getters and a constructor. Next, we create two new classes representing composite objects: OrGoal and AndGoal, which inherit from CompositeGoal. This design allows for flexible and scalable goal combinations without modifying existing code, adhering to the Open-Closed Principle. 
+The design is not sufficient as it is. To fix the design, we will use the Composite Pattern. Firstly, we create a common interface that each of the specific goal strategies  (ExitGoal, BoulderGoal, TreasureGoal) implement in their respective classes.  These classes are the leaf components in the Composite Pattern, representing individual goals that do not contain other goals. We create a CompositeGoal abstract class, which holds goal1 and goal2 as private final variables, providing getters and a constructor. Next, we create two new classes representing composite objects: OrGoal and AndGoal, which inherit from CompositeGoal. This design allows for flexible and scalable goal combinations without modifying existing code, adhering to the Open-Closed Principle. 
 
 [Briefly explain what you did]
 
@@ -120,17 +114,38 @@ Add all other changes you made in the same format here:
 
 [Any other notes]
 
-### Choice 1 (Insert choice)
+### Choice 1 (Snakes)
 
 [Links to your merge requests](/put/links/here)
 
 **Assumptions**
 
-[Any assumptions made]
+- Snake bodies can attack the player
+- When a snake gets a health or attack buff, the entire body gets the buff. 
+- If a new body node is created after a previous buff is applied, then that body does not receive the buff.
+- If a new body node is created when a snake consumes an item that gives it a buff, then that body receives the buff.
+- Players can fight invisible snakes
+- A snake can be invincible and invisible at the same time.
+- Snakes can teleport through portals, but one node at a time.
 
 **Design**
 
 [Design]
+
+A snake is represented as a linked list of nodes. We create a SnakeNode interface, where the classes SnakeHead and SnakeBody will implement, and both will be subclasses of Enemy. For each SnakeHead, there is a right reference to the next SnakeNode in the linked list, and for each SnakeBody, there is a right and left references to the next and previous SnakeNodes of the linked list as well as a reference to the SnakeHead node. 
+
+A SnakeHead node will also have a list of previous positions, as this will be needed for the movement of the body nodes and the splitting of the snake if it is invincible. It will also hold a SnakeState variable, that stores the state of the snake, whether the snake is hibernating, invicible or invisible or any combination of the three. It will also hold the buff variables: attackArrowBuff, healthTreasureBuff, healthKeyBuff.
+
+A SnakeBody node will also hold a reference to the state of the snake. It will also store a variable of the index of this SnakeBody node. 
+
+I also created an SnakeConsumable interface for all of the items that are consumable by the snake: invincibility potion, invisibility potion, key, treasure, arrow. I created the functions that applied their respective buffs to the snake once consumed.
+
+To move the snake, we move the head first by assigning the head AI_MOVEMENT priority and all the body nodes the AI_MOVEMENT_CALLBACK movement priority when we create and register the head and body nodes. We move the head using the dijkstra's algorithm provided for the mercenary movement, and the body node using the previous position array, by selecting the array index: last index - index of the node. This ensures each body node moves to the position previously occupied by the node in front of it. 
+
+When a body node gets destroyed, this is handled in the onDestroy function. If the snake is invincible a new snake is created by destroying the right node of the destroyed node, creating a new SnakeHead and rerouting the indices and head references of the right nodes and creating a new state based on the current state of the snake. 
+
+The effects of the invisibility potion are handled in the canMoveOnto functions. Since the body nodes do not move in chronological order, we must allow collisions or overlapping between nodes of the same snake for only the snake movement phase. So we make it so that it can overlap with a node of the same snake only if that node is an adjacent node. 
+
 
 **Changes after review**
 
@@ -138,7 +153,45 @@ Add all other changes you made in the same format here:
 
 **Test list**
 
-[Test List]
+- testSnakeConsumesTreasure
+- testSnakeConsumesKey
+- testSnakeConsumesInvincibilityPotion
+- testSnakeConsumesInvisibilityPotion
+- testSnakeConsumesArrow
+- testCanOverlapWallWhenInvisible
+- testSnakeMovesOverOtherSnakesWhenInvisible
+- testSnakeHibernatesWhenThereIsNoFood
+- testEvadesWallWhenThereIsTreasure
+- testEntireSnakeKilledWhenHeadIsDestroyedAndNotInvincible
+- testEntireSnakeKilledWhenHeadIsDestroyedAndInvincible
+- testDestroyBodyNodeWhenNotInvincible
+- testDestroySnakeBodyWhenInvincible
+- testDestroyHibernatingInvincibleSnake
+- testSnakeCannotMoveOntoItselfWhenNotInvisible
+- testSnakeCannotMoveOntoItselfWhenInvisible
+- testSnakeBodyIsBuffedWhenConsumedTreasure
+- testSnakeBodyIsBuffedWhenConsumedKey
+- testSnakeBodyIsBuffedWhenConsumedArrow
+- testSnakeCannotOverlapOtherSnakeWhenNotInvisible
+- testSnakeBodyCanTeleport
+- testSnakeTakesDamageWhenAttackedByPlayer
+- testSnakeKilledWhenBombExplodes
+- testSnakeBodyDestroyedWhenBombExplodes
+- testSnakeMovesShortestPathWhenThereisFood
+- testSnakeCannotMoveThroughWallsWhenNotInvisible
+- testSnakeCanOverlapClosedDoor
+- testSnakeCanOverlapOpenDoor
+- testSnakeCanOverlapMercenary
+- testSnakeCanOverlapSpider
+- testSnakeCanOverlapBoulder
+- testSnakeCanOverlapSwitch
+- testSnakeCanOverlapExit
+- testSnakeCanTeleport
+- testSnakeCanOverlapZombieToast
+- testSnakeCanOverlapZombieToastSpawner
+- testSnakeCanOverlapWood
+- testSnakeCanMoveOntoBomb
+- testSnakeCanMoveOntoSword
 
 **Other notes**
 

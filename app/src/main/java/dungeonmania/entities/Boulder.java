@@ -2,6 +2,7 @@ package dungeonmania.entities;
 
 import dungeonmania.Game;
 import dungeonmania.entities.enemies.Spider;
+import dungeonmania.entities.enemies.snake.SnakeNode;
 import dungeonmania.map.GameMap;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
@@ -16,6 +17,8 @@ public class Boulder extends Entity implements Overlappable {
         if (entity instanceof Spider)
             return false;
         if (entity instanceof Player && canPush(map, entity.getFacing()))
+            return true;
+        if (entity instanceof SnakeNode)
             return true;
         return false;
     }

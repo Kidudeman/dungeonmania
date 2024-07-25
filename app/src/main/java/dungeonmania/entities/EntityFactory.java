@@ -4,8 +4,11 @@ import dungeonmania.Game;
 import dungeonmania.entities.buildables.Bow;
 import dungeonmania.entities.buildables.Shield;
 import dungeonmania.entities.collectables.*;
-import dungeonmania.entities.collectables.Sword;
 import dungeonmania.entities.enemies.*;
+import dungeonmania.entities.enemies.snake.SnakeBody;
+import dungeonmania.entities.enemies.snake.SnakeHead;
+import dungeonmania.entities.enemies.snake.SnakeNode;
+import dungeonmania.entities.enemies.snake.SnakeState;
 import dungeonmania.entities.collectables.potions.InvincibilityPotion;
 import dungeonmania.entities.collectables.potions.InvisibilityPotion;
 import dungeonmania.util.Position;
@@ -128,6 +131,45 @@ public class EntityFactory {
                 allyAttack, allyDefence);
     }
 
+    public SnakeHead buildSnakeHead(Position pos) {
+        double snakeHealth = config.optDouble("snake_health", SnakeNode.DEFAULT_HEALTH);
+        double snakeAttack = config.optDouble("snake_attack", SnakeNode.DEFAULT_ATTACK);
+        double attackArrowBuff = config.optDouble("snake_attack_arrow_buff", SnakeNode.DEFAULT_ARROW_BUFF);
+        double healthTreasureBuff = config.optDouble("snake_health_treasure_buff", SnakeNode.DEFAULT_TREASURE_BUFF);
+        double healthKeyBuff = config.optDouble("snake_health_key_buff", SnakeNode.DEFAULT_KEY_BUFF);
+        return new SnakeHead(pos, snakeHealth, snakeAttack, attackArrowBuff, healthTreasureBuff, healthKeyBuff);
+    }
+
+    public SnakeHead buildSplitSnake(Game game, SnakeHead head, SnakeNode right, Position pos,
+            List<Position> newPrevPos) {
+
+        SnakeState state = new SnakeState(head.getState().isInvincible(), head.getState().isInvisible(),
+                head.getState().isHibernating());
+        SnakeHead newHead = new SnakeHead(state, newPrevPos, right, pos, head.getBattleStatistics().getHealth(),
+                head.getBattleStatistics().getAttack(), head.getAttackArrowBuff(), head.getHealthTreasureBuff(),
+                head.getHealthKeyBuff());
+
+        if (right != null) {
+            ((SnakeBody) right).connectLeft(newHead);
+        }
+        newHead.updateNodeIndices();
+
+        game.getMap().addEntity(newHead);
+        game.register(() -> newHead.move(game), newHead.getMovementPriority(), newHead.getId());
+
+        return newHead;
+    }
+
+    public void buildSnakeBody(SnakeNode left, Game game) {
+        double snakeHealth = config.optDouble("snake_health", SnakeNode.DEFAULT_HEALTH);
+        double snakeAttack = config.optDouble("snake_attack", SnakeNode.DEFAULT_ATTACK);
+        SnakeBody end = new SnakeBody(left.getHead(), left.getState(), left, left.calculateLastPos(), snakeHealth,
+                snakeAttack);
+        game.getMap().addEntity(end);
+        left.connectRight(end);
+        game.register(() -> end.move(game), end.getMovementPriority(), end.getId());
+    }
+
     public Bow buildBow() {
         int bowDurability = config.optInt("bow_durability");
         return new Bow(bowDurability);
@@ -184,6 +226,8 @@ public class EntityFactory {
             return new Sword(pos, swordAttack, swordDurability);
         case "spider":
             return buildSpider(pos);
+        case "snake_head":
+            return buildSnakeHead(pos);
         case "door":
             return new Door(pos, jsonEntity.getInt("key"));
         case "key":
