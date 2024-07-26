@@ -1,10 +1,11 @@
-package dungeonmania.mvp;
+package dungeonmania.mvp.task2;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import dungeonmania.DungeonManiaController;
+import dungeonmania.mvp.TestUtils;
 import dungeonmania.response.models.DungeonResponse;
 import dungeonmania.util.Direction;
 

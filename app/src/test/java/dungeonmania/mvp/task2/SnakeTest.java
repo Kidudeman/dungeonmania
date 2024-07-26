@@ -1,4 +1,4 @@
-package dungeonmania.mvp;
+package dungeonmania.mvp.task2;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -15,7 +15,7 @@ import dungeonmania.response.models.DungeonResponse;
 import dungeonmania.response.models.EntityResponse;
 import dungeonmania.util.Direction;
 import dungeonmania.exceptions.InvalidActionException;
-
+import dungeonmania.mvp.TestUtils;
 import dungeonmania.util.Position;
 
 public class SnakeTest {
