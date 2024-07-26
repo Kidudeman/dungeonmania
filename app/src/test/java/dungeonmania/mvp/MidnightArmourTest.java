@@ -2,6 +2,7 @@ package dungeonmania.mvp;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -16,6 +17,7 @@ import dungeonmania.DungeonManiaController;
 import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.response.models.BattleResponse;
 import dungeonmania.response.models.DungeonResponse;
+import dungeonmania.response.models.EntityResponse;
 import dungeonmania.response.models.RoundResponse;
 import dungeonmania.util.Direction;
 
@@ -50,7 +52,7 @@ public class MidnightArmourTest {
 
     @Test
     @Tag("18-2")
-    @DisplayName("Test armour can't be built as zombies are present, can after")
+    @DisplayName("Test armour can't be built as zombies are present")
     public void buildMidnightArmourFailsZombies() throws InvalidActionException {
         DungeonManiaController dmc = new DungeonManiaController();
         DungeonResponse res = dmc.newGame("d_MidnightArmourTest_buildMidnightArmourFailsZombies", "c_midnightArmour");
@@ -78,6 +80,50 @@ public class MidnightArmourTest {
 
     @Test
     @Tag("18-3")
+    @DisplayName("Test armour can't be built as zombies are present, can after")
+    public void buildMidnightArmourAfterZombiesKilled() throws InvalidActionException {
+        DungeonManiaController dmc = new DungeonManiaController();
+        DungeonResponse res = dmc.newGame("d_MidnightArmourTest_MidnightArmourAfterZombiesKilled", "c_midnightArmour");
+
+        assertEquals(0, TestUtils.getInventory(res, "sword").size());
+        assertEquals(0, TestUtils.getInventory(res, "sun_stone").size());
+
+        // Pick up Sword
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(1, TestUtils.getInventory(res, "sword").size());
+
+        // Pick up SunStone
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(1, TestUtils.getInventory(res, "sun_stone").size());
+
+        // Build Fails
+        assertEquals(0, TestUtils.getInventory(res, "midnight_armour").size());
+        assertThrows(InvalidActionException.class, () -> dmc.build("midnight_armour"));
+        assertEquals(0, TestUtils.getInventory(res, "midnight_armour").size());
+
+        // Materials remain in inventory
+        assertEquals(1, TestUtils.getInventory(res, "sword").size());
+        assertEquals(1, TestUtils.getInventory(res, "sun_stone").size());
+
+        res = dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+
+        // Build Midnight Armour
+        assertEquals(0, TestUtils.getInventory(res, "midnight_armour").size());
+        res = assertDoesNotThrow(() -> dmc.build("midnight_armour"));
+        assertEquals(1, TestUtils.getInventory(res, "midnight_armour").size());
+
+        // Materials used in construction disappear from inventory
+        assertEquals(0, TestUtils.getInventory(res, "sword").size());
+        assertEquals(0, TestUtils.getInventory(res, "sun_stone").size());
+
+    }
+
+    @Test
+    @Tag("18-4")
     @DisplayName("Test midnight_armour is on list of buildables that the player can currently build")
     public void onBuildables() {
         DungeonManiaController dmc;
@@ -91,13 +137,13 @@ public class MidnightArmourTest {
         res = dmc.tick(Direction.RIGHT);
         res = dmc.tick(Direction.RIGHT);
 
-        // Sceptre added to buildables list
+        // Midnight armour added to buildables list
         buildables.add("midnight_armour");
         assertEquals(buildables.size(), res.getBuildables().size());
         assertTrue(buildables.containsAll(res.getBuildables()));
         assertTrue(res.getBuildables().containsAll(buildables));
 
-        // Build Sceptre
+        // Build Midnight armour
         res = assertDoesNotThrow(() -> dmc.build("midnight_armour"));
         assertEquals(1, TestUtils.getInventory(res, "midnight_armour").size());
 
@@ -107,7 +153,7 @@ public class MidnightArmourTest {
     }
 
     @Test
-    @Tag("18-4")
+    @Tag("18-5")
     @DisplayName("Test midnight_armour is not on list of buildables that the player can currently build due to zombie")
     public void onBuildablesFailsZombies() {
         DungeonManiaController dmc;
@@ -128,7 +174,39 @@ public class MidnightArmourTest {
     }
 
     @Test
-    @Tag("18-5")
+    @Tag("18-6")
+    @DisplayName("Test midnight_armour is not on list of buildables due to zombie, can after zombie killed")
+    public void onBuildablesAfterZombiesKilled() {
+        DungeonManiaController dmc;
+        dmc = new DungeonManiaController();
+        DungeonResponse res = dmc.newGame("d_MidnightArmourTest_MidnightArmourAfterZombiesKilled", "c_midnightArmour");
+
+        List<String> buildables = new ArrayList<>();
+        assertEquals(buildables, res.getBuildables());
+
+        // Gather entities to build midnight_armour
+        res = dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+
+        assertEquals(buildables.size(), res.getBuildables().size());
+        assertTrue(buildables.containsAll(res.getBuildables()));
+        assertTrue(res.getBuildables().containsAll(buildables));
+
+        res = dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+
+        buildables.add("midnight_armour");
+        assertEquals(buildables.size(), res.getBuildables().size());
+        assertTrue(buildables.containsAll(res.getBuildables()));
+        assertTrue(res.getBuildables().containsAll(buildables));
+
+    }
+
+    @Test
+    @Tag("18-7")
     @DisplayName("Test midnight_armour increases attack damage")
     public void testArmourIncreasesAttackDamage() {
         DungeonManiaController dmc = new DungeonManiaController();
@@ -158,11 +236,13 @@ public class MidnightArmourTest {
         RoundResponse firstRound = battle.getRounds().get(0);
 
         assertEquals((playerBaseAttack + armourAttack) / 5, -firstRound.getDeltaEnemyHealth(), 0.001);
+        assertEquals(1, TestUtils.getInventory(res, "midnight_armour").size());
     }
 
     @Test
-    @Tag("18-6")
+    @Tag("18-8")
     @DisplayName("Test armour reduces enemy attack")
+
     public void testArmourReducesAttackDamage() throws InvalidActionException {
         DungeonManiaController dmc = new DungeonManiaController();
         String config = "c_midnightArmourTest_midnightArmourBattle";
@@ -190,6 +270,48 @@ public class MidnightArmourTest {
         int expectedDamage = (enemyAttack - armourEffect) / 10;
         // Delta health is negative so take negative here
         assertEquals(expectedDamage, -firstRound.getDeltaCharacterHealth(), 0.001);
+        assertEquals(1, TestUtils.getInventory(res, "midnight_armour").size());
+    }
+
+    @Test
+    @Tag("18-9")
+    @DisplayName("Test armour durability")
+    public void testArmourDurability() throws InvalidActionException {
+        DungeonManiaController dmc = new DungeonManiaController();
+        String config = "c_MidnightArmourTest_midnightArmourBattleDurability";
+        DungeonResponse res = dmc.newGame("d_MidnightArmourTest_midnightArmourBattleDurability", config);
+
+        // Pick up sword and sun_stone
+        res = dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+
+        assertEquals(1, TestUtils.getInventory(res, "sword").size());
+        assertEquals(1, TestUtils.getInventory(res, "sun_stone").size());
+
+        assertEquals(0, TestUtils.getInventory(res, "midnight_armour").size());
+        res = assertDoesNotThrow(() -> dmc.build("midnight_armour"));
+        assertEquals(1, TestUtils.getInventory(res, "midnight_armour").size());
+
+        res = dmc.tick(Direction.RIGHT);
+
+        // Battle many enemies (13)
+        List<EntityResponse> entities = res.getEntities();
+        while (TestUtils.countEntityOfType(entities, "mercenary") != 0) {
+            res = dmc.tick(Direction.RIGHT);
+            entities = res.getEntities();
+        }
+
+        // Check midnight armour remains in inventory throughout all battles
+        assertTrue(res.getBattles().size() != 0);
+        List<BattleResponse> battles = res.getBattles();
+        BattleResponse firstBattle = battles.get(0);
+        BattleResponse lastBattle = battles.get(battles.size() - 1);
+        assertNotEquals(0, firstBattle.getBattleItems().size());
+        assertNotEquals(0, lastBattle.getBattleItems().size());
+        assertTrue(firstBattle.getBattleItems().get(0).getType().startsWith("midnight_armour"));
+        assertTrue(lastBattle.getBattleItems().get(0).getType().startsWith("midnight_armour"));
+        assertEquals(1, TestUtils.getInventory(res, "midnight_armour").size());
+
     }
 
 }

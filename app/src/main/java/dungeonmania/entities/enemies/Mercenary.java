@@ -84,7 +84,7 @@ public class Mercenary extends Enemy implements Interactable {
 
     @Override
     public boolean isInteractable(Player player) {
-        return !allied && canBeBribed(player);
+        return !allied && !tempAllied && canBeBribed(player);
     }
 
     @Override

@@ -1,10 +1,13 @@
 package dungeonmania.entities.enemies;
 
+import java.util.List;
+
 import dungeonmania.Game;
 import dungeonmania.entities.Destructible;
 import dungeonmania.entities.Entity;
 import dungeonmania.entities.Interactable;
 import dungeonmania.entities.Player;
+import dungeonmania.entities.Wall;
 import dungeonmania.entities.enemies.snake.SnakeNode;
 import dungeonmania.map.GameMap;
 import dungeonmania.util.Position;
@@ -17,7 +20,10 @@ public class ZombieToastSpawner extends Entity implements Interactable, Destruct
     }
 
     public void spawn(Game game) {
-        game.getEntityFactory().spawnZombie(game, this);
+        List<Position> positions = this.getPosition().getCardinallyAdjacentPositions();
+        if (positions.stream().map(p -> game.getEntities(p, Wall.class)).anyMatch(l -> l.isEmpty())) {
+            game.getEntityFactory().spawnZombie(game, this);
+        }
     }
 
     @Override

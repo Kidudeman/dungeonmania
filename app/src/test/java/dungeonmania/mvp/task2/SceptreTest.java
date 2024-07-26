@@ -15,6 +15,7 @@ import dungeonmania.DungeonManiaController;
 import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.mvp.TestUtils;
 import dungeonmania.response.models.DungeonResponse;
+import dungeonmania.response.models.EntityResponse;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
@@ -376,6 +377,51 @@ public class SceptreTest {
         assertEquals(2, res.getBattles().size());
         assertTrue(res.getBattles().get(0).getRounds().size() >= 1);
         assertEquals(0, res.getBattles().get(0).getBattleItems().size());
+    }
+
+    @Test
+    @Tag("17-6")
+    @DisplayName("Test that there are no radius contraints on sceptre use")
+    public void sceptreRadius() throws InvalidActionException {
+        DungeonManiaController dmc = new DungeonManiaController();
+        DungeonResponse res = dmc.newGame("d_SceptreTest_sceptreRadius", "c_SceptreTest");
+        List<EntityResponse> merc = TestUtils.getEntities(res, "mercenary");
+
+        // Pick up Wood x1
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(1, TestUtils.getInventory(res, "wood").size());
+
+        // Pick up Key
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(1, TestUtils.getInventory(res, "key").size());
+
+        // Pick up SunStone
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(1, TestUtils.getInventory(res, "sun_stone").size());
+
+        // Pick up Treasure
+        res = dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(2, TestUtils.getInventory(res, "treasure").size());
+
+        // Build Sceptre
+        assertEquals(0, TestUtils.getInventory(res, "sceptre").size());
+        res = assertDoesNotThrow(() -> dmc.build("sceptre"));
+        assertEquals(1, TestUtils.getInventory(res, "sceptre").size());
+
+        // use sceptre
+        res = dmc.tick(TestUtils.getFirstItemId(res, "sceptre"));
+
+        // merc is brainwashed
+        merc = TestUtils.getEntities(res, "mercenary");
+        assertEquals(false, merc.get(0).isInteractable());
+
+        // merc no longer brainwashed
+        res = dmc.tick(Direction.DOWN);
+        res = dmc.tick(Direction.DOWN);
+        res = dmc.tick(Direction.DOWN);
+        merc = TestUtils.getEntities(res, "mercenary");
+        assertEquals(true, merc.get(0).isInteractable());
     }
 
     private Position getMercPos(DungeonResponse res) {
