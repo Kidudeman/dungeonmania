@@ -8,6 +8,6 @@ import dungeonmania.battles.BattleStatistics;
  */
 public interface BattleItem {
     public BattleStatistics applyBuff(BattleStatistics origin);
+
     public void use(Game game);
-    public int getDurability();
 }

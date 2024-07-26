@@ -15,6 +15,7 @@ public class BattleStatistics {
     private double reducer;
     private boolean invincible;
     private boolean enabled;
+    private boolean sceptreActive;
 
     public BattleStatistics(double health, double attack, double defence, double attackMagnifier,
             double damageReducer) {
@@ -25,10 +26,11 @@ public class BattleStatistics {
         this.reducer = damageReducer;
         this.invincible = false;
         this.enabled = true;
+        this.sceptreActive = false;
     }
 
     public BattleStatistics(double health, double attack, double defence, double attackMagnifier, double damageReducer,
-            boolean isInvincible, boolean isEnabled) {
+            boolean isInvincible, boolean isEnabled, boolean sceptreActive) {
         this.health = health;
         this.attack = attack;
         this.defence = defence;
@@ -36,10 +38,12 @@ public class BattleStatistics {
         this.reducer = damageReducer;
         this.invincible = isInvincible;
         this.enabled = isEnabled;
+        this.sceptreActive = sceptreActive;
     }
 
     public static List<BattleRound> battle(BattleStatistics self, BattleStatistics target) {
         List<BattleRound> rounds = new ArrayList<>();
+
         if (self.invincible ^ target.invincible) {
             double damageOnSelf = (self.invincible) ? 0 : self.getHealth();
             double damageOnTarget = (target.invincible) ? 0 : target.getHealth();
@@ -62,7 +66,8 @@ public class BattleStatistics {
 
     public static BattleStatistics applyBuff(BattleStatistics origin, BattleStatistics buff) {
         return new BattleStatistics(origin.health + buff.health, origin.attack + buff.attack,
-                origin.defence + buff.defence, origin.magnifier, origin.reducer, buff.isInvincible(), buff.isEnabled());
+                origin.defence + buff.defence, origin.magnifier, origin.reducer, buff.isInvincible(), buff.isEnabled(),
+                buff.isSceptreActive());
     }
 
     public double getHealth() {
@@ -119,5 +124,13 @@ public class BattleStatistics {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public boolean isSceptreActive() {
+        return sceptreActive;
+    }
+
+    public void setSceptreActive(boolean sceptreActive) {
+        this.sceptreActive = sceptreActive;
     }
 }

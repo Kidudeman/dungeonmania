@@ -6,13 +6,15 @@ import dungeonmania.entities.BattleItem;
 import dungeonmania.entities.Entity;
 import dungeonmania.entities.Overlappable;
 import dungeonmania.entities.Player;
+import dungeonmania.entities.buildables.Breakable;
 import dungeonmania.entities.collectables.SnakeConsumable;
 import dungeonmania.entities.enemies.snake.SnakeHead;
 import dungeonmania.entities.inventory.InventoryItem;
 import dungeonmania.map.GameMap;
 import dungeonmania.util.Position;
 
-public abstract class Potion extends Entity implements InventoryItem, BattleItem, Overlappable, SnakeConsumable {
+public abstract class Potion extends Entity
+        implements InventoryItem, BattleItem, Overlappable, SnakeConsumable, Breakable {
     private int duration;
 
     public Potion(Position position, int duration) {
