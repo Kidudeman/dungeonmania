@@ -10,6 +10,7 @@ import dungeonmania.entities.EntityFactory;
 import dungeonmania.entities.EntityInterface;
 import dungeonmania.entities.Interactable;
 import dungeonmania.entities.Player;
+import dungeonmania.entities.buildables.Sceptre;
 import dungeonmania.entities.collectables.Bomb;
 import dungeonmania.entities.collectables.potions.Potion;
 import dungeonmania.entities.enemies.Enemy;
@@ -54,7 +55,8 @@ public class Game {
         map.init();
         this.tickCount = 0;
         player = map.getPlayer();
-        register(() -> player.onTick(tickCount), PLAYER_MOVEMENT, "potionQueue");
+        register(() -> player.onTickPotion(tickCount), PLAYER_MOVEMENT, "potionQueue");
+        register(() -> player.onTickSceptre(tickCount, map), PLAYER_MOVEMENT, "sceptreQueue");
     }
 
     public Game tick(Direction movementDirection) {
@@ -67,7 +69,7 @@ public class Game {
         Entity item = player.getEntity(itemUsedId);
         if (item == null)
             throw new InvalidActionException(String.format("Item with id %s doesn't exist", itemUsedId));
-        if (!(item instanceof Bomb) && !(item instanceof Potion))
+        if (!(item instanceof Bomb) && !(item instanceof Potion) && !(item instanceof Sceptre))
             throw new IllegalArgumentException(String.format("%s cannot be used", item.getClass()));
 
         registerOnce(() -> {
@@ -75,6 +77,8 @@ public class Game {
                 player.use((Bomb) item, map);
             if (item instanceof Potion)
                 player.use((Potion) item, tickCount);
+            if (item instanceof Sceptre)
+                player.use((Sceptre) item, tickCount, map);
         }, PLAYER_MOVEMENT, "playerUsesItem");
         tick();
         return this;
@@ -92,11 +96,11 @@ public class Game {
     }
 
     public Game build(String buildable) throws InvalidActionException {
-        List<String> buildables = player.getBuildables();
+        List<String> buildables = player.getBuildables(map);
         if (!buildables.contains(buildable)) {
             throw new InvalidActionException(String.format("%s cannot be built", buildable));
         }
-        registerOnce(() -> player.build(buildable, entityFactory), PLAYER_MOVEMENT, "playerBuildsItem");
+        registerOnce(() -> player.build(buildable, entityFactory, map), PLAYER_MOVEMENT, "playerBuildsItem");
         tick();
         return this;
     }
@@ -217,7 +221,7 @@ public class Game {
     }
 
     public List<String> getPlayerBuildables() {
-        return this.player.getBuildables();
+        return this.player.getBuildables(map);
     }
 
     public Inventory getPlayerInventory() {

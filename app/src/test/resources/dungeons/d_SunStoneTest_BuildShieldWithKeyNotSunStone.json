@@ -11,39 +11,25 @@
             "y": 1
         },
         {
-            "type": "arrow",
+            "type": "wood",
             "x": 3,
             "y": 1
         },
         {
-            "type": "arrow",
+            "type": "key",
             "x": 4,
-            "y": 1
+            "y": 1,
+            "key": 1
         },
         {
-            "type": "arrow",
+            "type": "sun_stone",
             "x": 5,
             "y": 1
         },
         {
-            "type": "wood",
-            "x": 6,
-            "y": 1
-        },
-        {
-            "type": "wood",
-            "x": 7,
-            "y": 1
-        },
-        {
-            "type": "treasure",
-            "x": 8,
-            "y": 1
-        },
-        {
             "type": "exit",
-            "x": 6,
-            "y": 6
+            "x": 2,
+            "y": 2
         }
     ],
     "goal-condition": {

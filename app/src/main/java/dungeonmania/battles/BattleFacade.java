@@ -44,15 +44,17 @@ public class BattleFacade {
 
         List<Mercenary> mercs = game.getMap().getEntities(Mercenary.class);
         for (Mercenary merc : mercs) {
-            if (!merc.isAllied())
+            if (!merc.isAllied() && !merc.isTempAllied())
                 continue;
             playerBuff = BattleStatistics.applyBuff(playerBuff, merc.getBattleStatistics());
         }
 
         // 2. Battle the two stats
         BattleStatistics playerBaseStatistics = player.getBattleStatistics();
+        System.out.println(playerBaseStatistics);
         BattleStatistics enemyBaseStatistics = enemy.getBattleStatistics();
         BattleStatistics playerBattleStatistics = BattleStatistics.applyBuff(playerBaseStatistics, playerBuff);
+        System.out.println(playerBaseStatistics);
         BattleStatistics enemyBattleStatistics = enemyBaseStatistics;
         if (!playerBattleStatistics.isEnabled() || !enemyBaseStatistics.isEnabled())
             return;
@@ -64,8 +66,9 @@ public class BattleFacade {
 
         // 4. call to decrease durability of items
         for (BattleItem item : battleItems) {
-            if (item instanceof InventoryItem)
+            if (item instanceof InventoryItem) {
                 item.use(game);
+            }
         }
 
         // 5. Log the battle - solidate it to be a battle response

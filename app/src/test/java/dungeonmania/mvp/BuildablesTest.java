@@ -28,7 +28,7 @@ public class BuildablesTest {
     @Test
     @Tag("5-2")
     @DisplayName("Test InvalidActionException is raised when the player "
-            + "does not have sufficient items to build a bow or shield")
+            + "does not have sufficient items to build a bow, shield, sceptre or midnight_armour")
     public void buildInvalidActionException() {
         DungeonManiaController dmc;
         dmc = new DungeonManiaController();
@@ -36,6 +36,8 @@ public class BuildablesTest {
         assertThrows(InvalidActionException.class, () -> dmc.build("bow"));
 
         assertThrows(InvalidActionException.class, () -> dmc.build("shield"));
+        assertThrows(InvalidActionException.class, () -> dmc.build("sceptre"));
+        assertThrows(InvalidActionException.class, () -> dmc.build("midnight_armour"));
     }
 
     @Test

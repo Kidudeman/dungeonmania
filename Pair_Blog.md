@@ -208,23 +208,65 @@ The buff of the invisibility potion are handled in the canMoveOnto functions. Si
 
 **Assumptions**
 
-[Any assumptions made]
+- Multiple sceptres can be built, stored in inventory and used in a queue
+- There is no cool down period between sceptre use
+- There is no limit to the number of sceptres a player can possess
+- No entity based criteria for building a sceptre or using it
+- Once a sceptre is used, it is destroyed
+- Sceptre duration is 3
+- A mercenary will buff the players battle statisitics for the time is it brainwashed
+- Mercenaries can still be bribed when brainwashed, they become permanently allied
+- Midnight armour does not have to return durability as it cannot be broken
+- The defense and attack bonuses of midnight armour are both 2
+- There is no limit to the number of sunstones a player can possess
+- There is no limit to the number of sunstones placed on the map
+- No entity based criteria for if sunstone can be put on map
 
 **Design**
 
-[Design]
+Sunstone will extend the treasure so it can be counted towards the treasure goal and make checking the treasure amount for building criteria. Due to this, the mercenary class will now have to handle checking the bribe amount so it is soley based in the amount of the treasure superclass. I will create a seperate method using .getClass instead of instanceof to check as instanceof will return both the super and sub class. I think storing this method in Inventory will be the best as I will need it later for checking the criteria of building a buildable in terms of treasure count. 
+
+I think using a switch statement instead of a series of if/else statements in creating buildables will improve on the design as well. The case will be determined by the entity type provided and when entered, will direct it to a method that checks that specific buildables build criteria. In the abstract class Buildables, I will define a method that will return a boolean result if a player has the means to create that item. It will need to take in both the inventory and map due to midnight armours criteria of no zombies being present. It will still use the factory pattern to create the object.
+
+The sceptre will operate similar to how potions do in terms of queueing sceptres to be used. The sceptres brainwashing will work by using a tempAllied boolean value which will be stored in the mercenary class. When the sceptre is used, this will be set to true and the player will get the benefits of allies for the set amount of ticks. When the ticks end, this is then set to false and the mercenary is no longer brainwashed. Sceptre will be considered a battle item. The battleStatistics class will now also contain a boolean check depending on if the player is actively using a sceptre. When in battle, I will check if this is true and then apply the appropriate buffs. 
+
+Midnight armour will operate similar to the other battle items. When used it will apply its buffs to the battleStatisitics in the current way. The midnight armour will remain on the player after being used. As midnight armour does not break, I will create a Breakable interface that will contain the getDuration() method. 
 
 **Changes after review**
 
-[Design review/Changes made]
+I decided to refactor the way in which items are built and the buildables list. I found my initial plan was impossible as I couldn't access the checkBuildCriteria method stored in each buildable type without creating a object of that type. After doing some research online, I chose to use a registy pattern. This creates a hash map<key, value> where the key is the string version of the buildable and the value is an interface BuildableCriteria which contains the function for checking the criteria in each buildable. When using checkBuildCriteria, it will first register the buildable entity criteria in the registry and then check if they meet the criteria to be build. It will then use the switch statement to access the desired buildable, access the entity factory and remove the objects from the players inventory. The object removal also occurs within the respective buildable subclasses. 
+
+This also changed getBuildables() in the player function as now for each buildable entity, it checks its building criteria and if the registry returns true, it is added to list.
 
 **Test list**
 
-[Test List]
+buildSceptreWoodKey()
+buildSceptreWoodTreasure()
+buildSceptreArrowKey()
+buildSceptreArrowTreasure()
+onBuildables()
+sceptreDuration()
+sceptreQueuing()
+sceptreMultipleMercs()
+pickUpSunStone()
+useSunStoneWalkThroughOpenDoor()
+doorRemainsOpen()
+buildShieldWithSunStone()
+buildShieldWithTreasureNotSunStone()
+buildShieldWithKeyNotSunStone()
+bribeAmount()
+treasureGoal()
+buildMidnightArmour()
+buildMidnightArmourFailsZombies()
+onBuildables()
+onBuildablesFailsZombies()
+testArmourIncreasesAttackDamage()
+testArmourReducesAttackDamage()
 
 **Other notes**
 
-[Any other notes]
+https://java-design-patterns.com/patterns/registry/
+link to the article I read about registry patterns
 
 ### Choice 3 (Insert choice) (If you have a 3rd member)
 

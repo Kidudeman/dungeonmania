@@ -1,6 +1,7 @@
 package dungeonmania.entities.inventory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,11 +10,14 @@ import dungeonmania.entities.Entity;
 import dungeonmania.entities.EntityFactory;
 import dungeonmania.entities.Player;
 import dungeonmania.entities.buildables.Bow;
-import dungeonmania.entities.collectables.Arrow;
-import dungeonmania.entities.collectables.Key;
+import dungeonmania.entities.buildables.BuildableRegistry;
+import dungeonmania.entities.buildables.MidnightArmour;
+import dungeonmania.entities.buildables.Sceptre;
+import dungeonmania.entities.buildables.Shield;
 import dungeonmania.entities.collectables.Sword;
 import dungeonmania.entities.collectables.Treasure;
-import dungeonmania.entities.collectables.Wood;
+import dungeonmania.exceptions.InvalidActionException;
+import dungeonmania.map.GameMap;
 
 public class Inventory {
     private List<InventoryItem> items = new ArrayList<>();
@@ -27,52 +31,73 @@ public class Inventory {
         items.remove(item);
     }
 
-    public List<String> getBuildables() {
+    public List<String> getBuildables(Inventory items, GameMap map) {
 
-        int wood = count(Wood.class);
-        int arrows = count(Arrow.class);
-        int treasure = count(Treasure.class);
-        int keys = count(Key.class);
         List<String> result = new ArrayList<>();
+        List<String> entities = Arrays.asList("bow", "shield", "sceptre", "midnight_armour");
+        boolean check = false;
+        for (String entity : entities) {
+            try {
+                buildableRegistration(entity);
+            } catch (InvalidActionException e) {
+                e.printStackTrace();
+            }
+            check = BuildableRegistry.checkCriteria(entity, items, map);
+            if (check) {
+                result.add(entity);
+            }
+        }
 
-        if (wood >= 1 && arrows >= 3) {
-            result.add("bow");
-        }
-        if (wood >= 2 && (treasure >= 1 || keys >= 1)) {
-            result.add("shield");
-        }
         return result;
     }
 
-    public InventoryItem checkBuildCriteria(Player p, boolean remove, boolean forceShield, EntityFactory factory) {
+    public InventoryItem checkBuildCriteria(Player p, boolean remove, String entity, EntityFactory factory,
+            GameMap map) {
 
-        List<Wood> wood = getEntities(Wood.class);
-        List<Arrow> arrows = getEntities(Arrow.class);
-        List<Treasure> treasure = getEntities(Treasure.class);
-        List<Key> keys = getEntities(Key.class);
-
-        if (wood.size() >= 1 && arrows.size() >= 3 && !forceShield) {
-            if (remove) {
-                items.remove(wood.get(0));
-                items.remove(arrows.get(0));
-                items.remove(arrows.get(1));
-                items.remove(arrows.get(2));
-            }
-            return factory.buildBow();
-
-        } else if (wood.size() >= 2 && (treasure.size() >= 1 || keys.size() >= 1)) {
-            if (remove) {
-                items.remove(wood.get(0));
-                items.remove(wood.get(1));
-                if (treasure.size() >= 1) {
-                    items.remove(treasure.get(0));
-                } else {
-                    items.remove(keys.get(0));
-                }
-            }
-            return factory.buildShield();
+        Inventory inventory = p.getInventory();
+        try {
+            buildableRegistration(entity);
+        } catch (InvalidActionException e) {
+            e.printStackTrace();
         }
-        return null;
+
+        switch (entity) {
+        case "bow":
+            Bow bow = factory.buildBow();
+            bow.build(inventory);
+            return bow;
+        case "shield":
+            Shield shield = factory.buildShield();
+            shield.build(inventory);
+            return shield;
+        case "sceptre":
+            Sceptre sceptre = factory.buildScepter();
+            sceptre.build(inventory);
+            return sceptre;
+        case "midnight_armour":
+            MidnightArmour midnightArmour = factory.buildMidnightArmour();
+            midnightArmour.build(inventory);
+            return midnightArmour;
+        default:
+            return null;
+        }
+    }
+
+    public void buildableRegistration(String entity) throws InvalidActionException {
+        if (BuildableRegistry.getBuildableCriteria(entity) == null) {
+            switch (entity) {
+            case "bow":
+                BuildableRegistry.registerBuildable("bow", Bow::checkBuildCriteria);
+            case "shield":
+                BuildableRegistry.registerBuildable("shield", Shield::checkBuildCriteria);
+            case "sceptre":
+                BuildableRegistry.registerBuildable("sceptre", Sceptre::checkBuildCriteria);
+            case "midnight_armour":
+                BuildableRegistry.registerBuildable("midnight_armour", MidnightArmour::checkBuildCriteria);
+            default:
+                return;
+            }
+        }
     }
 
     public <T extends InventoryItem> T getFirst(Class<T> itemType) {
@@ -82,10 +107,25 @@ public class Inventory {
         return null;
     }
 
+    public Treasure getCoins() {
+        for (InventoryItem item : items)
+            if (item.getClass() == Treasure.class)
+                return Treasure.class.cast(item);
+        return null;
+    }
+
     public <T extends InventoryItem> int count(Class<T> itemType) {
         int count = 0;
         for (InventoryItem item : items)
             if (itemType.isInstance(item))
+                count++;
+        return count;
+    }
+
+    public int countCoins() {
+        int count = 0;
+        for (InventoryItem item : items)
+            if (item.getClass() == Treasure.class)
                 count++;
         return count;
     }

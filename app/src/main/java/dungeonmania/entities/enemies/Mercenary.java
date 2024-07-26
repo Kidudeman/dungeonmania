@@ -5,7 +5,6 @@ import dungeonmania.battles.BattleStatistics;
 import dungeonmania.entities.Entity;
 import dungeonmania.entities.Interactable;
 import dungeonmania.entities.Player;
-import dungeonmania.entities.collectables.Treasure;
 import dungeonmania.entities.collectables.potions.InvincibilityPotion;
 import dungeonmania.entities.collectables.potions.InvisibilityPotion;
 import dungeonmania.entities.enemies.movementStrategies.DefaultMercenaryMovementStrategy;
@@ -27,6 +26,7 @@ public class Mercenary extends Enemy implements Interactable {
     private double allyDefence;
     private boolean allied = false;
     private boolean isAdjacentToPlayer = false;
+    private boolean tempAllied = false;
 
     public Mercenary(Position position, double health, double attack, int bribeAmount, int bribeRadius,
             double allyAttack, double allyDefence) {
@@ -41,9 +41,17 @@ public class Mercenary extends Enemy implements Interactable {
         return allied;
     }
 
+    public boolean isTempAllied() {
+        return tempAllied;
+    }
+
+    public void setTempAllied(boolean tempAllied) {
+        this.tempAllied = tempAllied;
+    }
+
     @Override
     public void onOverlap(Game map, Entity entity) {
-        if (allied)
+        if (allied || tempAllied)
             return;
         super.onOverlap(map, entity);
     }
@@ -54,7 +62,7 @@ public class Mercenary extends Enemy implements Interactable {
      * @return
      */
     private boolean canBeBribed(Player player) {
-        return bribeRadius >= 0 && player.countEntityOfType(Treasure.class) >= bribeAmount;
+        return bribeRadius >= 0 && player.countTreasureBribe() >= bribeAmount;
     }
 
     /**
@@ -62,9 +70,8 @@ public class Mercenary extends Enemy implements Interactable {
      */
     private void bribe(Player player) {
         for (int i = 0; i < bribeAmount; i++) {
-            player.use(Treasure.class);
+            player.useBribe();
         }
-
     }
 
     @Override
@@ -89,7 +96,7 @@ public class Mercenary extends Enemy implements Interactable {
 
     @Override
     public Position calculateNextPosition(Game game) {
-        if (allied) {
+        if (allied || tempAllied) {
             Position nextPos = isAdjacentToPlayer
                     ? new MercenaryAdjacentToPlayerMovementStrategy(this).getNextPosition(game)
                     : new DefaultMercenaryMovementStrategy(this).getNextPosition(game);

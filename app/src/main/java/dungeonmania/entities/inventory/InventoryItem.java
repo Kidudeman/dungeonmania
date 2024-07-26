@@ -8,4 +8,5 @@ public interface InventoryItem {
         inventory.add(item);
         return true;
     }
+
 }
